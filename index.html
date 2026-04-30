@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 AI 大佬简报</title>
+    <style>
+        body { font-family: -apple-system, system-ui, sans-serif; line-height: 1.6; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        h1 { text-align: center; color: #1a1a1a; }
+        .post { background: white; padding: 15px; margin-bottom: 15px; border-radius: 12px; shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .author { font-weight: bold; color: #1d9bf0; font-size: 1.1em; }
+        .time { font-size: 0.8em; color: #666; margin-bottom: 8px; }
+        .content { color: #333; word-wrap: break-word; }
+        a { color: #1d9bf0; text-decoration: none; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI 领域每日动态</h1>
+        <div id="feed">正在拼命加载大佬们的推文...</div>
+    </div>
+
+    <script>
+        // 【小白看这里】如果你想增加大佬，就在下面的括号里加账号，记得用引号和逗号隔开
+        const users = ['geoffreyhinton', 'ylecun', 'sama', 'karpathy'];
+        const feedContainer = document.getElementById('feed');
+
+        async function loadFeeds() {
+            feedContainer.innerHTML = '';
+            for (const user of users) {
+                try {
+                    // 使用 RSSHub 的 JSON 格式接口
+                    const res = await fetch(`https://rsshub.app/twitter/user/${user}.json`);
+                    const data = await res.json();
+                    
+                    // 每个大佬只取最新的 2 条，避免页面太长
+                    data.items.slice(0, 2).forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'post';
+                        div.innerHTML = `
+                            <div class="author">@${user}</div>
+                            <div class="time">${new Date(item.date_published).toLocaleString()}</div>
+                            <div class="content">${item.content_html}</div>
+                            <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+                            <a href="${item.url}" target="_blank">阅读原文 →</a>
+                        `;
+                        feedContainer.appendChild(div);
+                    });
+                } catch (e) {
+                    console.log(user + " 内容获取失败，可能是被屏蔽了");
+                }
+            }
+        }
+        loadFeeds();
+    </script>
+</body>
+</html>
